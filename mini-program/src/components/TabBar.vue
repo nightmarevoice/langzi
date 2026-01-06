@@ -62,13 +62,13 @@ const router = useRouter()
 // 根据当前路由计算激活的标签
 const activeTab = computed(() => {
   const path = route.path
-  if (path === '/' || path === '/pages/index') {
+  if (path === '/' || path.startsWith('/index')) {
     return 'home'
-  } else if (path === '/pages/skin-test') {
+  } else if (path === '/skin-test' || path.startsWith('/skin-test')) {
     return 'skin'
-  } else if (path === '/pages/consultation') {
+  } else if (path === '/consultation' || path.startsWith('/consultation')) {
     return 'consultation'
-  } else if (path === '/pages/my') {
+  } else if (path === '/my' || path.startsWith('/my')) {
     return 'mine'
   }
   return 'home'

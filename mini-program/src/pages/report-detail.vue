@@ -253,13 +253,13 @@
 
     <!-- 底部悬浮 -->
     <div class="floating-actions">
-      <button class="consult-btn" @click="handleConsultAI">
+      <div class="consult-btn" @click="handleConsultAI">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>咨询AI顾问</span>
-      </button>
-      <button class="share-btn" @click="handleShare">
+      </div>
+      <div class="share-btn" @click="handleShare">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2"/>
           <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -268,7 +268,7 @@
           <path d="M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>分享</span>
-      </button>
+      </div>
     </div>
   </div>
 </template>
@@ -929,10 +929,26 @@ const handleShare = () => {
 
 // 咨询AI顾问
 const handleConsultAI = () => {
-  // 跳转到AI咨询页面
+  // 跳转到AI咨询页面，携带皮肤报告数据
   console.log('咨询AI顾问:', report.value)
-  // 这里可以跳转到聊天页面或打开聊天框
-  alert('AI顾问功能开发中...')
+
+  // 构造要传递的皮肤报告数据
+  const skinReportData = {
+    skinType: report.value.skinTypes.join('、'),
+    mainProblems: detailedProblems.value.map(p => p.problem),
+    score: report.value.score,
+    radarData: report.value.radarData,
+    recommendations: morningRoutine.value.concat(eveningRoutine.value).map(r => r.description),
+    lastTestTime: new Date()
+  }
+
+  // 跳转到客服咨询页面，传递数据
+  router.push({
+    name: 'CustomerService',
+    query: {
+      skinReport: JSON.stringify(skinReportData)
+    }
+  })
 }
 
 // 处理商品推荐点击
@@ -1635,8 +1651,8 @@ onUnmounted(() => {
 }
 
 .radar-container {
-  width: 100%;
-  height: 320px;
+  width: 90%;
+  height:280px;
   margin: 0 auto;
   border-radius: 12px;
   overflow: hidden;
@@ -2046,8 +2062,11 @@ onUnmounted(() => {
 .consult-btn {
   background: linear-gradient(135deg, #1AD299 0%, #17C088 100%);
   color: white;
+  flex-shrink:0 ;
 }
-
+.consult-btn span,svg{
+    flex-shrink: 0;
+}
 .consult-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -2057,8 +2076,11 @@ onUnmounted(() => {
   background: white;
   color: #333;
   border: 1px solid #e8e8e8;
+  flex-shrink:0 ;
 }
-
+.share-btn span,svg {
+  flex-shrink: 0;
+}
 .share-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);

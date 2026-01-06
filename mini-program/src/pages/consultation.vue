@@ -4,12 +4,23 @@
     <div class="header">
       <div class="header-left"></div>
       <h1 class="header-title">咨询</h1>
-      <div class="header-right">
-        <button @click="handleMore" class="more-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="capsule-container">
+        <button class="capsule-btn" @click="handleMore">
+          <!-- 三点菜单图标（横向） -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
             <circle cx="12" cy="12" r="3" fill="currentColor"/>
             <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+        <div class="capsule-divider"></div>
+        <button class="capsule-btn">
+          <!-- 圆环套圆图标 -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 外圆环：直径10px，半径5px -->
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2" fill="none"/>
+            <!-- 内圆：直径3px，半径1.5px -->
+            <circle cx="9" cy="9" r="2" fill="currentColor"/>
           </svg>
         </button>
       </div>
@@ -358,8 +369,28 @@ const handleOnlineConsult = () => {
   width: 32px;
 }
 
-.more-btn {
-  width: 32px;
+
+/* 微信小程序胶囊按钮 */
+.capsule-container {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  min-width: 87px;
+  width: 87px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 1px solid #e8e8e8;
+}
+
+.capsule-container:active {
+  background: #f5f5f5;
+}
+
+.capsule-btn {
+  flex: 1;
   height: 32px;
   display: flex;
   align-items: center;
@@ -370,6 +401,23 @@ const handleOnlineConsult = () => {
   color: #333;
   padding: 0;
 }
+
+.capsule-btn:hover {
+  opacity: 1;
+}
+
+.capsule-btn:active {
+  opacity: 1;
+}
+
+.capsule-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
 
 /* 主体内容 */
 .content {

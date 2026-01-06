@@ -490,13 +490,18 @@ onBeforeUnmount(() => {
   height: 32px;
   min-width: 87px;
   width: 87px;
-  background: rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 0 6px;
   box-sizing: border-box;
   flex-shrink: 0;
   transition: background 0.2s;
   justify-content: space-between;
+  background: #fff;
+  border-radius: 16px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 1px solid #e8e8e8;
 }
 
 .capsule-container:active {

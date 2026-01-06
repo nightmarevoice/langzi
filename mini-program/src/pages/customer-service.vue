@@ -34,50 +34,14 @@
       </div>
     </div>
 
-    <!-- 报告摘要卡片（可展开） -->
-    <div class="report-summary" :class="{ expanded: reportExpanded }">
-      <div class="report-header" @click="toggleReport">
-        <div class="report-header-left">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="report-title">当前报告摘要</span>
-        </div>
-        <svg 
-          width="16" 
-          height="16" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          class="expand-icon"
-          :class="{ rotated: reportExpanded }"
-        >
-          <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="report-content" v-if="reportExpanded">
-        <div class="report-item">
-          <span class="report-label">肌肤类型：</span>
-          <span class="report-value">混合性肌肤</span>
-        </div>
-        <div class="report-item">
-          <span class="report-label">主要问题：</span>
-          <span class="report-value">T区出油、毛孔粗大</span>
-        </div>
-        <div class="report-item">
-          <span class="report-label">建议：</span>
-          <span class="report-value">控油保湿、定期清洁</span>
-        </div>
-      </div>
-    </div>
-
+   
     <!-- 消息列表 -->
     <div class="messages-container" ref="messagesContainer">
       <div 
         v-for="(message, index) in messages" 
         :key="index"
         class="message-wrapper"
-        :class="{ 'user-message': message.type === 'user', 'ai-message': message.type === 'ai', 'system-message': message.type === 'system' }"
+        :class="{ 'user-message': message.type === 'user' || message.type === 'user-report', 'ai-message': message.type === 'ai', 'system-message': message.type === 'system' }"
       >
         <!-- 用户消息 -->
         <div v-if="message.type === 'user'" class="message user">
@@ -87,7 +51,7 @@
               <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <div class="message-content">
+          <div :class="{ 'message-content' : !message.image , 'image-content': message.image }">
             <div v-if="message.voice" class="voice-message">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -99,6 +63,59 @@
             <img v-if="message.image" :src="message.image" alt="用户上传" class="message-image" @click.stop="openImageViewer(message.image)" />
           </div>
           <div class="message-time">{{ formatTime(message.time) }}</div>
+        </div>
+
+        <!-- 用户皮肤报告卡片 -->
+        <div v-if="message.type === 'user-report'" class="message user-report">
+          <div class="avatar user-avatar">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="skin-report-card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="card-title">
+                <h4>皮肤测试报告</h4>
+                <span class="card-time">{{ formatTime(message.time) }}</span>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="report-summary">
+                <div class="summary-item">
+                  <span class="label">肤质类型：</span>
+                  <span class="value">{{ message.skinReport.skinType }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">综合评分：</span>
+                  <span class="value score">{{ message.skinReport.score }}分</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">主要问题：</span>
+                  <span class="value">{{ message.skinReport.mainProblems.join('、') }}</span>
+                </div>
+              </div>
+              <div class="radar-preview">
+                <div class="radar-title">维度分析</div>
+                <div class="radar-indicators">
+                  <div v-for="(value, index) in message.skinReport.radarData" :key="index" class="indicator-item">
+                    <span class="indicator-name">{{ ['水润度', '光泽度', '弹性', '紧致度', '细腻度', '均匀度'][index] }}</span>
+                    <div class="indicator-bar">
+                      <div class="indicator-fill" :style="{ width: value + '%' }"></div>
+                    </div>
+                    <span class="indicator-value">{{ value }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- AI消息 -->
@@ -212,9 +229,10 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
 // 报告摘要展开状态
 const reportExpanded = ref(false)
@@ -236,6 +254,438 @@ const currentSkinReport = ref({
   recommendations: ['控油保湿', '定期清洁', '防晒保护'],
   lastTestTime: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2小时前
 })
+
+// 生成详细的报告分析数据
+const generateReportAnalysis = (skinReport) => {
+  const analysis = {
+    skinTypeAnalysis: {},
+    dimensionAnalysis: {},
+    problemAnalysis: {},
+    careRecommendations: {},
+    productRecommendations: {},
+    improvementPlan: {}
+  }
+
+  // 1. 肤质类型分析
+  analysis.skinTypeAnalysis = {
+    primaryType: skinReport.skinTypes[0],
+    secondaryType: skinReport.skinTypes[1] || null,
+    characteristics: getSkinTypeCharacteristics(skinReport.skinTypes),
+    dailyCareTips: getDailyCareTips(skinReport.skinTypes),
+    seasonalAdjustments: getSeasonalAdjustments(skinReport.skinTypes)
+  }
+
+  // 2. 维度详细分析 [水润度, 光泽度, 弹性, 紧致度, 细腻度, 均匀度]
+  analysis.dimensionAnalysis = {
+    hydration: analyzeDimension('水润度', skinReport.radarData[0]),
+    gloss: analyzeDimension('光泽度', skinReport.radarData[1]),
+    elasticity: analyzeDimension('弹性', skinReport.radarData[2]),
+    firmness: analyzeDimension('紧致度', skinReport.radarData[3]),
+    smoothness: analyzeDimension('细腻度', skinReport.radarData[4]),
+    uniformity: analyzeDimension('均匀度', skinReport.radarData[5])
+  }
+
+  // 3. 问题深度分析
+  analysis.problemAnalysis = {
+    identifiedProblems: skinReport.problems.map(problem => ({
+      type: problem,
+      severity: getProblemSeverity(problem, skinReport.radarData),
+      description: getProblemDescription(problem),
+      causes: getProblemCauses(problem),
+      symptoms: getProblemSymptoms(problem),
+      longTermEffects: getLongTermEffects(problem)
+    })),
+    priorityOrder: getPriorityOrder(skinReport.problems),
+    interactions: getProblemInteractions(skinReport.problems)
+  }
+
+  // 4. 护理建议
+  analysis.careRecommendations = {
+    morningRoutine: getMorningRoutine(skinReport),
+    eveningRoutine: getEveningRoutine(skinReport),
+    weeklyCare: getWeeklyCare(skinReport),
+    seasonalAdjustments: getSeasonalCareAdjustments(skinReport),
+    lifestyleFactors: getLifestyleFactors(skinReport)
+  }
+
+  // 5. 产品推荐
+  analysis.productRecommendations = {
+    essentials: getEssentialProducts(skinReport),
+    targeted: getTargetedProducts(skinReport.problems),
+    seasonal: getSeasonalProducts(skinReport),
+    budgetOptions: getBudgetOptions(skinReport),
+    premiumOptions: getPremiumOptions(skinReport)
+  }
+
+  // 6. 改善计划
+  analysis.improvementPlan = {
+    shortTerm: getShortTermGoals(skinReport), // 1-4周
+    mediumTerm: getMediumTermGoals(skinReport), // 1-3个月
+    longTerm: getLongTermGoals(skinReport), // 3-6个月
+    milestones: getImprovementMilestones(skinReport),
+    monitoring: getMonitoringIndicators(skinReport)
+  }
+
+  return analysis
+}
+
+// 肤质特征分析
+const getSkinTypeCharacteristics = (skinTypes) => {
+  const characteristics = {
+    '油性皮肤': ['皮脂分泌旺盛', 'T区油光明显', '毛孔粗大', '易长痘痘', '妆容不易脱落'],
+    '干性皮肤': ['水分流失快', '角质层薄', '易起皮屑', '细纹明显', '对环境敏感'],
+    '中性皮肤': ['皮脂平衡', '毛孔细小', '肤色均匀', '弹性良好', '耐受性强'],
+    '混合性皮肤': ['T区出油', 'U区干燥', '毛孔不均匀', '局部敏感', '需要分区护理'],
+    '敏感性皮肤': ['易红易痒', '屏障脆弱', '耐受性差', '易过敏', '需要温和护理'],
+    '成熟肌': ['胶原蛋白减少', '弹性下降', '皱纹增多', '色斑出现', '需要抗衰护理']
+  }
+
+  return skinTypes.flatMap(type => characteristics[type] || [])
+}
+
+// 日常护理建议
+const getDailyCareTips = (skinTypes) => {
+  const tips = {
+    '油性皮肤': ['早晚洁面', '使用控油产品', '定期去角质', '防晒不可少'],
+    '干性皮肤': ['补水保湿', '避免碱性洁面', '使用温和产品', '室内湿度要够'],
+    '中性皮肤': ['基础护理', '定期补水', '适当去角质', '均衡饮食'],
+    '混合性皮肤': ['分区护理', 'T区控油', 'U区保湿', '选择温和产品'],
+    '敏感性皮肤': ['成分简单', '避免刺激', '温和护理', '咨询专业人士'],
+    '成熟肌': ['抗衰护理', '补充胶原', '防晒必备', '定期检查']
+  }
+
+  return skinTypes.flatMap(type => tips[type] || [])
+}
+
+// 季节性调整
+const getSeasonalAdjustments = (skinTypes) => {
+  return {
+    spring: ['防过敏', '保湿补水', '温和护理', '防晒准备'],
+    summer: ['强效防晒', '清凉补水', '控油保湿', '防晒霜必备'],
+    autumn: ['深度保湿', '修复屏障', '防干燥', '温和护理'],
+    winter: ['深度补水', '锁水保湿', '室内加湿', '温和护肤']
+  }
+}
+
+// 维度分析
+const analyzeDimension = (name, value) => {
+  let level, description, advice
+
+  if (value >= 80) {
+    level = '优秀'
+    description = `${name}表现优秀，处于健康状态`
+    advice = '继续保持现有的护理习惯'
+  } else if (value >= 70) {
+    level = '良好'
+    description = `${name}状况良好，但有改善空间`
+    advice = '适当加强相关护理'
+  } else if (value >= 60) {
+    level = '一般'
+    description = `${name}需要关注和改善`
+    advice = '建议调整护理方案'
+  } else {
+    level = '需改善'
+    description = `${name}状况不佳，需要重点关注`
+    advice = '需要专业护理干预'
+  }
+
+  return { name, value, level, description, advice }
+}
+
+// 问题严重程度
+const getProblemSeverity = (problem, radarData) => {
+  const severityMap = {
+    'pore': Math.max(0, 100 - radarData[4]), // 细腻度倒数
+    'acne': Math.max(0, 100 - radarData[5]), // 均匀度倒数
+    'spot': Math.max(0, 100 - radarData[5]), // 均匀度倒数
+    'dry': Math.max(0, 100 - radarData[0]), // 水润度倒数
+    'wrinkle': Math.max(0, 100 - radarData[2] - radarData[3]), // 弹性和紧致度倒数
+    'sensitive': 60, // 敏感度固定中等
+    'oil': Math.max(0, 100 - radarData[1]) // 光泽度倒数（油腻影响光泽）
+  }
+
+  const severity = severityMap[problem] || 50
+  if (severity >= 70) return '严重'
+  if (severity >= 50) return '中等'
+  return '轻微'
+}
+
+// 问题描述
+const getProblemDescription = (problem) => {
+  const descriptions = {
+    'pore': '毛孔扩张，影响皮肤质地',
+    'acne': '炎性丘疹，影响皮肤健康',
+    'spot': '色素沉着，影响肤色均匀',
+    'dry': '水分不足，导致皮肤干燥',
+    'wrinkle': '胶原流失，形成细纹皱纹',
+    'sensitive': '屏障受损，容易过敏红肿',
+    'oil': '油脂过多，影响妆容持久'
+  }
+  return descriptions[problem] || '需要进一步评估'
+}
+
+// 问题成因
+const getProblemCauses = (problem) => {
+  const causes = {
+    'pore': ['皮脂分泌旺盛', '清洁不彻底', '荷尔蒙影响', '遗传因素'],
+    'acne': ['皮脂堵塞毛孔', '细菌滋生', '压力过大', '饮食不当'],
+    'spot': ['紫外线损伤', '激素变化', '炎症后色沉', '衰老氧化'],
+    'dry': ['环境干燥', '清洁过度', '护肤不当', '季节变化'],
+    'wrinkle': ['胶原减少', '自由基损伤', '表情习惯', '衰老过程'],
+    'sensitive': ['屏障损伤', '过敏原接触', '清洁过度', '环境刺激'],
+    'oil': ['皮脂腺活跃', '荷尔蒙波动', '压力影响', '遗传倾向']
+  }
+  return causes[problem] || []
+}
+
+// 问题症状
+const getProblemSymptoms = (problem) => {
+  const symptoms = {
+    'pore': ['毛孔粗大', '皮肤粗糙', '油光明显', '粉刺增多'],
+    'acne': ['红肿丘疹', '脓包形成', '疼痛不适', '色素沉着'],
+    'spot': ['肤色不均', '斑点出现', '暗沉明显', '肤质粗糙'],
+    'dry': ['皮肤干燥', '细纹增多', '脱皮现象', '紧绷不适'],
+    'wrinkle': ['细纹出现', '皮肤松弛', '弹性下降', '皱纹加深'],
+    'sensitive': ['红肿发热', '痒痛不适', '过敏反应', '屏障脆弱'],
+    'oil': ['油腻光泽', '毛孔堵塞', '粉刺痘痘', '妆容浮粉']
+  }
+  return symptoms[problem] || []
+}
+
+// 长期影响
+const getLongTermEffects = (problem) => {
+  const effects = {
+    'pore': ['皮肤老化加速', '毛孔难以恢复', '影响肤质', '自信心下降'],
+    'acne': ['疤痕形成', '色素沉着', '皮肤凹凸', '心理压力'],
+    'spot': ['肤色不均', '老化加速', '难于淡化', '影响美观'],
+    'dry': ['细纹增多', '屏障受损', '敏感加重', '舒适度差'],
+    'wrinkle': ['衰老加剧', '皮肤松弛', '皱纹加深', '自信缺失'],
+    'sensitive': ['过敏频繁', '护理受限', '生活不便', '心理负担'],
+    'oil': ['痘痘频发', '毛孔粗大', '肤质粗糙', '社交困扰']
+  }
+  return effects[problem] || []
+}
+
+// 优先级排序
+const getPriorityOrder = (problems) => {
+  const priorityMap = {
+    'acne': 1,      // 炎症问题优先处理
+    'sensitive': 1, // 敏感问题优先处理
+    'dry': 2,       // 干燥问题中等优先
+    'wrinkle': 2,   // 皱纹问题中等优先
+    'pore': 3,      // 毛孔问题较低优先
+    'spot': 3,      // 色斑问题较低优先
+    'oil': 3        // 出油问题较低优先
+  }
+
+  return problems.sort((a, b) => (priorityMap[a] || 4) - (priorityMap[b] || 4))
+}
+
+// 问题相互作用
+const getProblemInteractions = (problems) => {
+  const interactions = []
+
+  if (problems.includes('acne') && problems.includes('pore')) {
+    interactions.push('痘痘和毛孔问题互为因果，痘痘易导致毛孔扩张')
+  }
+  if (problems.includes('dry') && problems.includes('sensitive')) {
+    interactions.push('干燥容易导致皮肤敏感，敏感肌肤更易干燥')
+  }
+  if (problems.includes('acne') && problems.includes('spot')) {
+    interactions.push('痘痘炎症后容易形成色素沉着')
+  }
+  if (problems.includes('oil') && problems.includes('acne')) {
+    interactions.push('油脂分泌过多易堵塞毛孔，导致痘痘形成')
+  }
+
+  return interactions
+}
+
+// 晨间护理
+const getMorningRoutine = (skinReport) => {
+  const baseSteps = [
+    { step: '洁面', product: '温和洁面产品', time: '2分钟' },
+    { step: '爽肤水', product: '保湿爽肤水', time: '1分钟' },
+    { step: '精华液', product: '针对性精华', time: '2分钟' },
+    { step: '防晒霜', product: 'SPF30+防晒霜', time: '3分钟' }
+  ]
+
+  // 根据肤质调整
+  if (skinReport.skinTypes.includes('油性皮肤')) {
+    baseSteps.splice(1, 0, { step: '控油爽肤', product: '控油爽肤水', time: '1分钟' })
+  }
+
+  return baseSteps
+}
+
+// 晚间护理
+const getEveningRoutine = (skinReport) => {
+  const baseSteps = [
+    { step: '卸妆洁面', product: '温和卸妆产品', time: '3分钟' },
+    { step: '二次清洁', product: '泡沫洁面', time: '2分钟' },
+    { step: '爽肤水', product: '保湿爽肤水', time: '1分钟' },
+    { step: '眼霜', product: '眼部护理霜', time: '1分钟' },
+    { step: '精华液', product: '营养精华', time: '2分钟' },
+    { step: '面霜', product: '保湿面霜', time: '2分钟' }
+  ]
+
+  return baseSteps
+}
+
+// 每周护理
+const getWeeklyCare = (skinReport) => {
+  return [
+    { frequency: '2-3次/周', care: '去角质', method: '使用温和的化学去角质产品' },
+    { frequency: '1-2次/周', care: '面膜', method: '根据肤质选择相应面膜' },
+    { frequency: '1次/周', care: '深层清洁', method: '使用清洁面膜或去黑头产品' }
+  ]
+}
+
+// 季节性护理调整
+const getSeasonalCareAdjustments = (skinReport) => {
+  return {
+    spring: '增加保湿，准备防晒',
+    summer: '强化防晒，补充水分',
+    autumn: '深度补水，修复屏障',
+    winter: '加强保湿，温和护理'
+  }
+}
+
+// 生活方式因素
+const getLifestyleFactors = (skinReport) => {
+  return [
+    '保证7-8小时睡眠',
+    '规律作息，避免熬夜',
+    '均衡饮食，多喝水',
+    '适量运动，保持心情愉悦',
+    '减少化妆品使用频率',
+    '定期更换床品和毛巾'
+  ]
+}
+
+// 基础护理产品
+const getEssentialProducts = (skinReport) => {
+  return [
+    { category: '洁面', essential: true, recommendation: '氨基酸洁面产品' },
+    { category: '保湿', essential: true, recommendation: '含有透明质酸的面霜' },
+    { category: '防晒', essential: true, recommendation: 'SPF30+物理防晒霜' },
+    { category: '眼部', essential: false, recommendation: '维生素C眼霜' }
+  ]
+}
+
+// 针对性产品
+const getTargetedProducts = (problems) => {
+  const products = {}
+
+  if (problems.includes('pore')) {
+    products.poreCare = [
+      { name: '收缩水', purpose: '收缩毛孔' },
+      { name: '泥膜', purpose: '深层清洁' },
+      { name: '维A酸', purpose: '改善毛孔' }
+    ]
+  }
+
+  if (problems.includes('acne')) {
+    products.acneCare = [
+      { name: '水杨酸', purpose: '去角质消炎' },
+      { name: '烟酰胺', purpose: '改善肤质' },
+      { name: '茶树精油', purpose: '抗菌消炎' }
+    ]
+  }
+
+  if (problems.includes('spot')) {
+    products.spotCare = [
+      { name: '维生素C', purpose: '美白淡斑' },
+      { name: '熊果苷', purpose: '抑制黑色素' },
+      { name: '传明酸', purpose: '改善色斑' }
+    ]
+  }
+
+  return products
+}
+
+// 季节性产品
+const getSeasonalProducts = (skinReport) => {
+  return {
+    spring: ['防敏产品', '保湿霜', '防晒霜'],
+    summer: ['防晒霜', '控油产品', '补水面膜'],
+    autumn: ['保湿霜', '修复霜', '温和洁面'],
+    winter: ['滋润霜', '唇部护理', '护手霜']
+  }
+}
+
+// 预算选项
+const getBudgetOptions = (skinReport) => {
+  return [
+    { range: '¥0-200', suitable: '基础护理，适合学生党' },
+    { range: '¥200-500', suitable: '进阶护理，性价比高' },
+    { range: '¥500-1000', suitable: '专业护理，效果更好' },
+    { range: '¥1000+', suitable: '高端护理，综合改善' }
+  ]
+}
+
+// 高级选项
+const getPremiumOptions = (skinReport) => {
+  return [
+    { brand: 'La Mer', focus: '深度修复' },
+    { brand: 'SK-II', focus: '美白抗衰' },
+    { brand: 'Estee Lauder', focus: '抗衰老化' },
+    { brand: 'Clinique', focus: '温和护理' }
+  ]
+}
+
+// 短期目标 (1-4周)
+const getShortTermGoals = (skinReport) => {
+  return [
+    '建立规律的护肤习惯',
+    '改善皮肤清洁度',
+    '减少明显炎症反应',
+    '提高皮肤舒适度'
+  ]
+}
+
+// 中期目标 (1-3个月)
+const getMediumTermGoals = (skinReport) => {
+  return [
+    '改善主要皮肤问题',
+    '提升皮肤整体状态',
+    '建立适合的护理体系',
+    '培养良好生活习惯'
+  ]
+}
+
+// 长期目标 (3-6个月)
+const getLongTermGoals = (skinReport) => {
+  return [
+    '实现皮肤问题根本改善',
+    '维持健康的皮肤状态',
+    '建立完善的保养体系',
+    '培养持续的健康生活方式'
+  ]
+}
+
+// 改善里程碑
+const getImprovementMilestones = (skinReport) => {
+  return [
+    { week: 2, milestone: '皮肤适应新产品，无不适反应' },
+    { week: 4, milestone: '主要问题开始缓解' },
+    { month: 2, milestone: '皮肤状态明显改善' },
+    { month: 3, milestone: '建立稳定的护理习惯' },
+    { month: 6, milestone: '达到理想的皮肤状态' }
+  ]
+}
+
+// 监测指标
+const getMonitoringIndicators = (skinReport) => {
+  return [
+    '皮肤水润度变化',
+    '毛孔粗细变化',
+    '痘痘数量变化',
+    '肤色均匀度变化',
+    '皮肤舒适度变化',
+    '产品耐受性变化'
+  ]
+}
 
 // 是否正在转人工
 const isTransferringToHuman = ref(false)
@@ -347,19 +797,28 @@ const handleSend = async () => {
 
 // 生成AI回复（模拟）- 实现上下文感知
 const generateAIResponse = async (userText) => {
-  // 这里应该调用实际的AI API，使用RAG + 话术库
-  // 现在只是模拟回复
+  // 检查是否有传递的皮肤报告数据
+  const skinReportParam = route.query.skinReport
+  let skinReport = null
+  let detailedAnalysis = null
+
+  if (skinReportParam) {
+    try {
+      skinReport = JSON.parse(skinReportParam)
+      detailedAnalysis = generateReportAnalysis(skinReport)
+    } catch (error) {
+      console.error('解析皮肤报告数据失败:', error)
+    }
+  }
 
   // 检查是否刚刚测完肤（2小时内）
-  const timeSinceLastTest = Date.now() - currentSkinReport.value.lastTestTime.getTime()
-  const isRecentTest = timeSinceLastTest < 2 * 60 * 60 * 1000 // 2小时内
+  const isRecentTest = skinReport && (Date.now() - new Date(skinReport.lastTestTime).getTime()) < 2 * 60 * 60 * 1000
 
   let contextAwareResponse = ''
 
-  // 如果是近期测肤，添加上下文感知
-  if (isRecentTest) {
-    const hoursAgo = Math.floor(timeSinceLastTest / (60 * 60 * 1000))
-    contextAwareResponse = `看到您${hoursAgo > 0 ? hoursAgo + '小时前' : '刚刚'}测出了${currentSkinReport.value.skinType}，主要问题是${currentSkinReport.value.mainProblems.join('、')}。`
+  // 如果有详细分析数据，使用专业回复
+  if (detailedAnalysis) {
+    contextAwareResponse = `根据您的测肤报告分析，我来为您详细解读：\n\n`
 
     // 检查是否需要转人工
     if (userText.includes('复杂') || userText.includes('严重') || userText.includes('紧急')) {
@@ -371,22 +830,160 @@ const generateAIResponse = async (userText) => {
 
   const lowerText = userText.toLowerCase()
 
-  if (lowerText.includes('出油') || lowerText.includes('油')) {
-    return `${contextAwareResponse}根据您的测肤报告，T区出油主要是因为皮脂分泌旺盛。建议您：\n1. 使用温和的控油洁面产品\n2. 选择含有水杨酸或烟酰amide成分的护肤品\n3. 定期使用清洁面膜\n4. 保持充足睡眠，避免熬夜`
-  } else if (lowerText.includes('毛孔')) {
-    return `${contextAwareResponse}针对毛孔粗大的问题，建议您：\n1. 定期深层清洁，每周1-2次使用清洁面膜\n2. 使用含有AHA/BHA成分的产品\n3. 做好防晒，避免紫外线伤害\n4. 保持肌肤水油平衡，避免过度清洁`
-  } else if (lowerText.includes('痘痘') || lowerText.includes('痘')) {
-    return `${contextAwareResponse}关于痘痘问题，根据您的肌肤类型，建议：\n1. 使用温和的祛痘产品，避免过度刺激\n2. 保持面部清洁，但不要过度清洁\n3. 使用含有水杨酸或茶树精油的护肤品\n4. 避免用手挤压，注意饮食和作息`
-  } else if (lowerText.includes('色斑') || lowerText.includes('斑')) {
-    return `${contextAwareResponse}针对色斑问题，建议您：\n1. 做好防晒，这是最重要的\n2. 使用含有维生素C、烟酰amide等美白成分的产品\n3. 定期使用美白精华\n4. 避免熬夜，保持良好作息`
-  } else {
-    const baseResponse = '感谢您的提问。'
-    if (isRecentTest) {
-      return `${contextAwareResponse}${baseResponse}我已经结合您的最新测肤报告给出了建议。如果您有其他具体问题，可以继续问我。`
-    } else {
-      return `${baseResponse}根据您的测肤报告，我建议您关注肌肤的控油和保湿平衡。如果您有具体的问题，比如关于痘痘、色斑、毛孔等，可以随时问我，我会结合您的报告数据给出更详细的建议。`
+  // 基于详细分析数据的智能回复
+  if (detailedAnalysis) {
+    if (lowerText.includes('肤质') || lowerText.includes('类型')) {
+      return `${contextAwareResponse}您的肤质为${detailedAnalysis.skinTypeAnalysis.primaryType}${detailedAnalysis.skinTypeAnalysis.secondaryType ? `（${detailedAnalysis.skinTypeAnalysis.secondaryType}）` : ''}。\n\n主要特征：${detailedAnalysis.skinTypeAnalysis.characteristics.join('、')}。\n\n日常护理建议：${detailedAnalysis.skinTypeAnalysis.dailyCareTips.join('、')}。`
     }
+
+    if (lowerText.includes('问题') || lowerText.includes('分析')) {
+      const problems = detailedAnalysis.problemAnalysis.identifiedProblems
+      let response = `${contextAwareResponse}检测到以下主要问题：\n\n`
+      problems.forEach((problem, index) => {
+        response += `${index + 1}. ${problem.description}（${problem.severity}程度）\n`
+        response += `   主要成因：${problem.causes.join('、')}\n`
+        response += `   建议处理：${problem.symptoms.join('、')}\n\n`
+      })
+      return response + '建议优先处理严重程度较高的问题。'
+    }
+
+    if (lowerText.includes('护理') || lowerText.includes('建议')) {
+      const morning = detailedAnalysis.careRecommendations.morningRoutine
+      const evening = detailedAnalysis.careRecommendations.eveningRoutine
+
+      let response = `${contextAwareResponse}为您推荐的护理方案：\n\n🌅 晨间护理（${morning.length}步）：\n`
+      morning.forEach((step, index) => {
+        response += `${index + 1}. ${step.step} - ${step.product}（${step.time}）\n`
+      })
+
+      response += `\n🌙 晚间护理（${evening.length}步）：\n`
+      evening.forEach((step, index) => {
+        response += `${index + 1}. ${step.step} - ${step.product}（${step.time}）\n`
+      })
+
+      return response + `\n\n每周还建议进行${detailedAnalysis.careRecommendations.weeklyCare.map(c => c.care).join('、')}等深度护理。`
+    }
+
+    if (lowerText.includes('产品') || lowerText.includes('推荐')) {
+      const essentials = detailedAnalysis.productRecommendations.essentials.filter(p => p.essential)
+      let response = `${contextAwareResponse}根据您的肤质和问题，推荐以下产品：\n\n💫 基础必备：\n`
+      essentials.forEach(product => {
+        response += `• ${product.category}：${product.recommendation}\n`
+      })
+
+      const targeted = detailedAnalysis.productRecommendations.targeted
+      if (Object.keys(targeted).length > 0) {
+        response += `\n🎯 针对性产品：\n`
+        Object.entries(targeted).forEach(([category, products]) => {
+          response += `${category}：${products.map(p => p.name).join('、')}\n`
+        })
+      }
+
+      return response
+    }
+
+    if (lowerText.includes('改善') || lowerText.includes('计划')) {
+      const plan = detailedAnalysis.improvementPlan
+      let response = `${contextAwareResponse}改善计划：\n\n📅 短期目标（1-4周）：\n${plan.shortTerm.map(g => `• ${g}`).join('\n')}\n\n`
+
+      response += `🎯 中期目标（1-3个月）：\n${plan.mediumTerm.map(g => `• ${g}`).join('\n')}\n\n`
+
+      response += `🏆 长期目标（3-6个月）：\n${plan.longTerm.map(g => `• ${g}`).join('\n')}\n\n`
+
+      response += `📊 监测指标：\n${plan.monitoring.map(m => `• ${m}`).join('\n')}`
+
+      return response
+    }
+
+    // 默认回复
+    return `${contextAwareResponse}我已经基于您的测肤报告进行了详细分析。您可以询问关于肤质类型、问题分析、护理建议、产品推荐或改善计划等方面的问题，我会为您提供专业的解答。`
   }
+
+  // 后备回复逻辑（无详细数据时）
+  if (lowerText.includes('出油') || lowerText.includes('油')) {
+    return `根据您的测肤报告，T区出油主要是因为皮脂分泌旺盛。建议您：
+1. 使用温和的控油洁面产品
+2. 选择含有水杨酸或烟酰amide成分的护肤品
+3. 定期使用清洁面膜
+4. 保持充足睡眠，避免熬夜`
+  } else if (lowerText.includes('毛孔')) {
+    return `针对毛孔粗大的问题，建议您：
+1. 定期深层清洁，每周1-2次使用清洁面膜
+2. 使用含有AHA/BHA成分的产品
+3. 做好防晒，避免紫外线伤害
+4. 保持肌肤水油平衡，避免过度清洁`
+  } else if (lowerText.includes('痘痘') || lowerText.includes('痘')) {
+    return `关于痘痘问题，根据您的肌肤类型，建议：
+1. 使用温和的祛痘产品，避免过度刺激
+2. 保持面部清洁，但不要过度清洁
+3. 使用含有水杨酸或茶树精油的护肤品
+4. 避免用手挤压，注意饮食和作息`
+  } else if (lowerText.includes('色斑') || lowerText.includes('斑')) {
+    return `针对色斑问题，建议您：
+1. 做好防晒，这是最重要的
+2. 使用含有维生素C、烟酰amide等美白成分的产品
+3. 定期使用美白精华
+4. 避免熬夜，保持良好作息`
+  } else {
+    return '感谢您的提问。我可以基于您的测肤报告为您提供专业的护肤建议。请问您想了解哪个方面的问题呢？比如肤质分析、问题诊断、护理建议或产品推荐等。'
+  }
+}
+
+// 根据皮肤问题生成针对性气泡
+const generateProblemBasedBubbles = (problems) => {
+  const bubbles = []
+
+  if (problems.some(p => p.includes('出油') || p.includes('油'))) {
+    bubbles.push(
+      { text: '如何控油', action: 'oil_control' },
+      { text: '推荐控油产品', action: 'oil_products' }
+    )
+  }
+
+  if (problems.some(p => p.includes('毛孔'))) {
+    bubbles.push(
+      { text: '毛孔收缩方法', action: 'pore_care' },
+      { text: '毛孔清洁产品', action: 'pore_products' }
+    )
+  }
+
+  if (problems.some(p => p.includes('痘') || p.includes('痘痘'))) {
+    bubbles.push(
+      { text: '祛痘护理', action: 'acne_care' },
+      { text: '祛痘产品推荐', action: 'acne_products' }
+    )
+  }
+
+  if (problems.some(p => p.includes('斑') || p.includes('色素'))) {
+    bubbles.push(
+      { text: '美白祛斑', action: 'whitening_care' },
+      { text: '美白产品推荐', action: 'whitening_products' }
+    )
+  }
+
+  if (problems.some(p => p.includes('皱纹') || p.includes('细纹'))) {
+    bubbles.push(
+      { text: '抗衰老护理', action: 'anti_aging' },
+      { text: '抗皱产品推荐', action: 'anti_aging_products' }
+    )
+  }
+
+  if (problems.some(p => p.includes('干燥'))) {
+    bubbles.push(
+      { text: '保湿护理', action: 'hydration_care' },
+      { text: '保湿产品推荐', action: 'hydration_products' }
+    )
+  }
+
+  // 如果没有匹配到特定问题，添加通用气泡
+  if (bubbles.length === 0) {
+    bubbles.push(
+      { text: '日常护理建议', action: 'daily_care' },
+      { text: '产品推荐', action: 'general_products' }
+    )
+  }
+
+  return bubbles.slice(0, 4) // 最多显示4个气泡
 }
 
 // 生成自动气泡
@@ -452,16 +1049,36 @@ const handleQuickAction = (action) => {
 // 处理气泡点击
 const handleBubbleAction = (action) => {
   const actionTexts = {
+    // 控油相关
+    oil_control: '如何有效控油？',
+    oil_products: '推荐控油产品',
+    // 毛孔相关
+    pore_care: '毛孔收缩方法',
+    pore_products: '毛孔清洁产品',
+    // 痘痘相关
+    acne_care: '祛痘护理方法',
+    acne_products: '祛痘产品推荐',
+    acne_routine: '日常护理步骤',
+    acne_diet: '饮食注意事项',
+    // 美白相关
+    whitening_care: '美白祛斑方法',
+    whitening_products: '美白产品推荐',
+    // 抗衰相关
+    anti_aging: '抗衰老护理',
+    anti_aging_products: '抗皱产品推荐',
+    // 保湿相关
+    hydration_care: '保湿护理方法',
+    hydration_products: '保湿产品推荐',
+    // 通用
+    daily_care: '日常护理建议',
+    general_products: '产品推荐',
+    // 旧的气泡动作（兼容性）
     recommend_products: '推荐控油产品',
     cleaning_guide: '如何正确清洁',
     diet_tips: '日常饮食建议',
     pore_tightening: '毛孔收缩方法',
     recommend_toner: '推荐收缩水',
     sunscreen_reminder: '防晒很重要',
-    acne_products: '祛痘产品推荐',
-    acne_routine: '日常护理步骤',
-    acne_diet: '饮食注意事项',
-    whitening_products: '美白产品推荐',
     spot_removal: '色斑淡化方法',
     sunscreen_must: '防晒必备',
     book_consultation: '预约专业咨询',
@@ -686,6 +1303,59 @@ const formatTime = (date) => {
 }
 
 onMounted(() => {
+  // 检查是否有传递的皮肤报告数据
+  const skinReportParam = route.query.skinReport
+  
+  if (skinReportParam) {
+    try {
+      const skinReportData = JSON.parse(skinReportParam)
+      currentSkinReport.value = {
+        ...skinReportData,
+        lastTestTime: new Date(skinReportData.lastTestTime)
+      }
+
+      // 创建用户发送的皮肤报告卡片消息
+      const userReportMessage = {
+        type: 'user-report',
+        skinReport: skinReportData,
+        time: new Date(),
+        id: 'msg_user_report'
+      }
+
+      // 创建AI欢迎消息
+      const skinTypes = Array.isArray(skinReportData.skinTypes) ? skinReportData.skinTypes.join('、') : '混合性肌肤'
+      const mainProblems = Array.isArray(skinReportData.mainProblems) ? skinReportData.mainProblems.join('、') : '皮肤问题'
+      const score = skinReportData.score || '70'
+
+      const welcomeMessage = {
+        type: 'ai',
+        text: `您好！我是AI护肤顾问。我已经收到并解读了您的测肤报告数据。您的肤质为${skinTypes}，主要问题包括${mainProblems}，综合评分为${score}分。
+
+我可以为您提供：
+• 📊 详细的肤质分析和维度解读
+• 🔍 问题成因分析和改善建议
+• 💆 个性化的护理方案和产品推荐
+• 📈 长期改善计划和效果监测
+
+请问您想先了解哪个方面的内容呢？`,
+        time: new Date(Date.now() + 1000), // 1秒后
+        id: 'msg_welcome'
+      }
+
+      // 设置消息列表
+      messages.value = [userReportMessage, welcomeMessage]
+
+      // 生成针对性的快捷气泡
+      setTimeout(() => {
+        const bubbles = generateProblemBasedBubbles(skinReportData.mainProblems)
+        currentBubbles.value = bubbles
+      }, 2000)
+
+    } catch (error) {
+      console.error('解析皮肤报告数据失败:', error)
+    }
+  }
+
   scrollToBottom()
 })
 </script>
@@ -809,6 +1479,10 @@ onMounted(() => {
   border-bottom: 1px solid #e8e8e8;
   flex-shrink: 0;
   transition: all 0.3s;
+  border-radius: 5px;
+  padding:6px;
+  color:#454242;
+  font-size:12px;
 }
 
 .report-header {
@@ -875,18 +1549,30 @@ onMounted(() => {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .message-wrapper {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+}
+
+.message-wrapper.user-message {
+  justify-content: flex-end;
+}
+
+.message-wrapper.ai-message {
+  justify-content: flex-start;
+}
+
+.message-wrapper.user-report {
+  justify-content: flex-start;
 }
 
 .message {
   display: flex;
   gap: 8px;
-  max-width: 95%;
+  max-width: 85%;
   animation: fadeIn 0.3s;
 }
 
@@ -901,17 +1587,12 @@ onMounted(() => {
   }
 }
 
-.user-message {
-  align-items: flex-end;
-}
-
 .user-message .message {
   flex-direction: row-reverse;
-  margin-left: auto;
 }
 
-.ai-message {
-  align-items: flex-start;
+.ai-message .message {
+  flex-direction: row;
 }
 
 .message.user .message-content {
@@ -935,6 +1616,10 @@ onMounted(() => {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+}
+.image-content{
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .message-image {
@@ -973,6 +1658,138 @@ onMounted(() => {
 
 .ai-message .message-time {
   text-align: left;
+}
+
+/* 皮肤报告卡片 */
+.user-report {
+  align-items: flex-start;
+}
+
+.user-report .message {
+  flex-direction: row-reverse;
+  margin-left: auto;
+}
+
+.skin-report-card {
+  background: linear-gradient(135deg, #1AD299 0%, #17C088 100%);
+  color: white;
+  border-radius: 12px 12px 4px 12px;
+  padding: 16px;
+  max-width: 280px;
+  box-shadow: 0 2px 12px rgba(26, 211, 153, 0.3);
+  animation: fadeIn 0.3s;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-title h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+}
+
+.card-time {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  font-size: 12px;
+}
+
+.summary-item .label {
+  opacity: 0.9;
+}
+
+.summary-item .value {
+  font-weight: 500;
+}
+
+.summary-item .value.score {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+.radar-preview {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.radar-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.radar-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.indicator-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.indicator-name {
+  min-width: 40px;
+  opacity: 0.9;
+}
+
+.indicator-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.indicator-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+.indicator-value {
+  min-width: 30px;
+  text-align: right;
+  font-weight: 500;
 }
 
 .avatar {
