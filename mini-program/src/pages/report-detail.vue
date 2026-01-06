@@ -36,7 +36,7 @@
           <div class="score-circle" :class="getScoreColorClass(report.score)">
             <div class="score-value">{{ report.score }}</div>
             <div class="score-label">综合评分</div>
-          </div>
+        </div>
           <div class="skin-type-tags">
             <span
               v-for="tag in report.skinTypes"
@@ -45,33 +45,13 @@
             >
               {{ tag }}
             </span>
-          </div>
         </div>
-        <div class="radar-chart">
-          <div class="radar-container">
-            <svg viewBox="0 0 200 200" class="radar-svg">
-              <!-- 背景圆环 -->
-              
-              <!-- 轴线 -->
-              <line x1="100" y1="20" x2="100" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-              <line x1="20" y1="100" x2="180" y2="100" stroke="#e0e0e0" stroke-width="1"/>
-              <line x1="35" y1="35" x2="165" y2="165" stroke="#e0e0e0" stroke-width="1"/>
-              <line x1="35" y1="165" x2="165" y2="35" stroke="#e0e0e0" stroke-width="1"/>
-              <line x1="20" y1="100" x2="180" y2="100" stroke="#e0e0e0" stroke-width="1"/>
-              <line x1="100" y1="20" x2="100" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-
-              <!-- 数据多边形 -->
-              <polygon :points="radarPoints" fill="rgba(26, 210, 153, 0.2)" stroke="#1AD299" stroke-width="2"/>
-            </svg>
-            <!-- 标签 -->
-            <div class="radar-labels">
-              <span class="radar-label" style="top: 5px; left: 50%; transform: translateX(-50%)">水润度</span>
-              <span class="radar-label" style="top: 50%; right: 5px; transform: translateY(-50%)">光泽度</span>
-              <span class="radar-label" style="bottom: 5px; left: 50%; transform: translateX(-50%)">紧致度</span>
-              <span class="radar-label" style="top: 50%; left: 5px; transform: translateY(-50%)">均匀度</span>
-              <span class="radar-label" style="top: 25%; right: 15px;">弹性</span>
-              <span class="radar-label" style="bottom: 25%; right: 15px;">细腻度</span>
-            </div>
+      </div>
+        <!-- 雷达图区域 -->
+        <div class="radar-section">
+          <h3 class="radar-title">肌肤维度分析</h3>
+          <div class="radar-chart">
+            <div ref="radarChart" class="radar-container"></div>
           </div>
         </div>
       </div>
@@ -97,31 +77,31 @@
                 :style="getRegionStyle(region)"
               ></div>
             </div>
-          </div>
         </div>
+      </div>
 
         <!-- 问题列表 -->
         <div class="problems-list">
-          <div
-            v-for="(problem, index) in detailedProblems"
-            :key="index"
+        <div 
+          v-for="(problem, index) in detailedProblems" 
+          :key="index"
             class="problem-card"
             :class="{ 'active': selectedProblem?.id === problem.id }"
             @click="selectProblem(problem)"
-          >
+        >
             <div class="problem-card-header">
-              <div class="problem-icon" :style="{ backgroundColor: problem.color }">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="none"/>
-                  <path d="M12 8V12M12 16H12.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div class="problem-info">
-                <h3 class="problem-name">{{ problem.name }}</h3>
-                <div class="problem-severity" :class="problem.severity">
-                  {{ problem.severityText }}
-                </div>
-              </div>
+            <div class="problem-icon" :style="{ backgroundColor: problem.color }">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="none"/>
+                <path d="M12 8V12M12 16H12.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="problem-info">
+              <h3 class="problem-name">{{ problem.name }}</h3>
+            <div class="problem-severity" :class="problem.severity">
+              {{ problem.severityText }}
+            </div>
+          </div>
               <button class="expand-btn" @click.stop="toggleProblemDetail(problem)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                      :class="{ 'rotated': problem.expanded }">
@@ -132,15 +112,15 @@
 
             <!-- 展开的详细分析 -->
             <div v-if="problem.expanded" class="problem-detail-content">
-              <div class="problem-description">
+          <div class="problem-description">
                 <h4>问题描述</h4>
                 <p>{{ problem.description }}</p>
               </div>
               <div class="problem-cause">
                 <h4>成因分析</h4>
                 <p>{{ problem.causeAnalysis }}</p>
-              </div>
-              <div class="problem-suggestion">
+          </div>
+          <div class="problem-suggestion">
                 <h4>建议</h4>
                 <p>{{ problem.suggestion }}</p>
               </div>
@@ -165,7 +145,7 @@
           <div class="routine-steps">
             <div
               v-for="(step, index) in morningRoutine"
-              :key="index"
+            :key="index"
               class="routine-step"
             >
               <div class="step-number">{{ index + 1 }}</div>
@@ -294,8 +274,25 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import * as echarts from 'echarts/core'
+import { RadarChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// 注册必需的组件
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  RadarChart,
+  CanvasRenderer
+])
 
 const router = useRouter()
 const route = useRoute()
@@ -303,12 +300,18 @@ const route = useRoute()
 // 报告数据
 const report = ref(null)
 
+// 雷达图实例
+const radarChart = ref(null)
+
 // 脸部基础图片
 const faceBaseImage = ref('/static/微信图片_20251211123514_1179_45.png')
 
 // 选中的问题（用于热力图高亮）
 const selectedProblem = ref(null)
 const highlightedProblem = ref(null)
+
+// ECharts实例
+let chartInstance = null
 
 // 处理标注点点击
 const handleMarkerClick = (problem) => {
@@ -333,23 +336,160 @@ const getScoreColorClass = (score) => {
   return 'score-danger'
 }
 
-// 计算雷达图点坐标
-const radarPoints = computed(() => {
-  if (!report.value?.radarData) return ''
 
-  const centerX = 100
-  const centerY = 100
-  const maxRadius = 80
-  const angles = [270, 330, 30, 90, 150, 210] // 角度分布
-
-  return report.value.radarData.map((value, index) => {
-    const angle = angles[index] * Math.PI / 180
-    const radius = (value / 100) * maxRadius
-    const x = centerX + radius * Math.cos(angle)
-    const y = centerY + radius * Math.sin(angle)
-    return `${x},${y}`
-  }).join(' ')
+// 获取雷达图数据
+const radarData = computed(() => {
+  return report.value?.radarData || [0, 0, 0, 0, 0, 0]
 })
+
+// 初始化雷达图
+const initRadarChart = () => {
+  if (!radarChart.value || !report.value) return
+
+  // 销毁之前的实例
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
+
+  // 创建图表实例
+  chartInstance = echarts.init(radarChart.value)
+
+  // 配置选项
+  const option = {
+    backgroundColor: 'transparent',
+    radar: {
+      indicator: [
+        { name: '水润度', max: 100 },
+        { name: '光泽度', max: 100 },
+        { name: '弹性', max: 100 },
+        { name: '紧致度', max: 100 },
+        { name: '细腻度', max: 100 },
+        { name: '均匀度', max: 100 }
+      ],
+      center: ['50%', '50%'],
+      radius: '75%',
+      startAngle: 90,
+      splitNumber: 3,
+      shape: 'circle',
+      axisName: {
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontSize: 12,
+        fontWeight: 500
+      },
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(255, 255, 255, 0.15)',
+          width: 1,
+          type: 'dashed'
+        }
+      },
+      splitArea: {
+        show: true,
+        areaStyle: {
+          color: ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)', 'rgba(255, 255, 255, 0.02)']
+        }
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(255, 255, 255, 0.25)',
+          width: 1
+        }
+      }
+    },
+    series: [{
+      type: 'radar',
+      symbol: 'circle',
+      symbolSize: 6,
+      lineStyle: {
+        width: 1,
+        color: '#1AD299',
+        shadowColor: 'rgba(26, 210, 153, 0.5)',
+        shadowBlur: 10
+      },
+      itemStyle: {
+        color: '#1AD299',
+        borderColor: '#fff',
+        borderWidth: 1,
+        shadowColor: 'rgba(26, 210, 153, 0.8)',
+        shadowBlur: 8
+      },
+      areaStyle: {
+        color: {
+          type: 'radial',
+          x: 0.5,
+          y: 0.5,
+          r: 0.6,
+          colorStops: [
+            { offset: 0, color: 'rgba(255, 255, 255, 0.5)' },
+            { offset: 0.5, color: 'rgba(255, 255, 255, 0.5)' },
+            { offset: 1, color: 'rgba(255, 255, 255, 0.5)' }
+          ]
+        },
+        shadowColor: 'rgba(26, 210, 153, 0.3)',
+        shadowBlur: 15
+      },
+      emphasis: {
+        focus: 'series',
+        lineStyle: {
+          width: 4,
+          color: '#1AD299'
+        },
+        areaStyle: {
+          color: {
+            type: 'radial',
+            x: 0.5,
+            y: 0.5,
+            r: 0.6,
+            colorStops: [
+              { offset: 0, color: 'rgba(26, 210, 153, 0.5)' },
+              { offset: 0.5, color: 'rgba(26, 210, 153, 0.3)' },
+              { offset: 1, color: 'rgba(26, 210, 153, 0.15)' }
+            ]
+          }
+        }
+      },
+      data: [{
+        value: radarData.value,
+        name: '肌肤分析'
+      }]
+    }],
+    tooltip: {
+      show: true,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      borderColor: '#1AD299',
+      textStyle: {
+        color: '#fff'
+      },
+      formatter: (params) => {
+        const indicators = ['水润度', '光泽度', '弹性', '紧致度', '细腻度', '均匀度']
+        let result = `${params.seriesName}<br/>`
+        params.data.value.forEach((value, index) => {
+          result += `${indicators[index]}: ${value}%<br/>`
+        })
+        return result
+      }
+    }
+  }
+
+  // 设置配置项
+  chartInstance.setOption(option)
+
+  // 响应式调整
+  const resizeObserver = new ResizeObserver(() => {
+    if (chartInstance) {
+      chartInstance.resize()
+    }
+  })
+  resizeObserver.observe(radarChart.value)
+}
+
+// 销毁雷达图
+const destroyRadarChart = () => {
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+}
 
 // 获取区域样式
 const getRegionStyle = (region) => {
@@ -492,7 +632,7 @@ const detailedProblems = computed(() => {
 // 晨间护理步骤
 const morningRoutine = computed(() => {
   if (!report.value) return []
-
+  
   const routines = []
 
   // 基础清洁
@@ -585,14 +725,14 @@ const eveningRoutine = computed(() => {
       product: '果酸收缩水'
     })
   }
-
+  
   if (report.value.problems.includes('spot') || report.value.problems.includes('dull')) {
     routines.push({
       name: '夜间美白',
       product: '烟酰胺美白霜'
     })
   }
-
+  
   if (report.value.problems.includes('wrinkle')) {
     routines.push({
       name: '夜间修复',
@@ -832,7 +972,7 @@ onMounted(() => {
       date: '2024-01-15',
       score: 72, // 综合评分
       skinTypes: ['油性皮肤', '混合性'], // 肤质标签
-      radarData: [75, 65, 80, 70, 85, 78], // 雷达图数据：水润度、光泽度、紧致度、均匀度、弹性、细腻度
+      radarData: [75, 65, 50, 70, 60, 78], // 雷达图数据：水润度、光泽度、紧致度、均匀度、弹性、细腻度
       tags: ['毛孔粗大', '痘痘严重'],
       store: 'binjiang',
       problems: ['pore', 'acne'],
@@ -920,7 +1060,18 @@ onMounted(() => {
     if (!foundReport.problems || foundReport.problems.length === 0) {
       report.value.problems = []
     }
+    // 初始化雷达图
+    nextTick(() => {
+      initRadarChart()
+    })
   }
+})
+
+// 组件卸载时清理定时器和图表
+onUnmounted(() => {
+ 
+  // 销毁雷达图实例
+  destroyRadarChart()
 })
 </script>
 
@@ -1406,19 +1557,20 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   position: relative;
 }
 
 .score-circle::before {
   content: '';
   position: absolute;
+  z-index:-1;
   top: -4px;
   left: -4px;
   right: -4px;
   bottom: -4px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) calc(var(--score) * 1%), transparent calc(var(--score) * 1%));
+  background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) calc(var(--score) * 1%), transparent calc(var(--score) * 1%));
 }
 
 .score-healthy {
@@ -1464,36 +1616,30 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.radar-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.radar-title {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
 .radar-chart {
   display: flex;
   justify-content: center;
+  margin-top: 10px;
 }
 
 .radar-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-}
-
-.radar-svg {
   width: 100%;
-  height: 100%;
-}
-
-.radar-labels {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.radar-label {
-  position: absolute;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
+  height: 320px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* 问题详情区域 */
@@ -1945,4 +2091,9 @@ onMounted(() => {
   }
 }
 </style>
+
+
+
+
+
 
