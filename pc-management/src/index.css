@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+/* 登录页面输入框样式覆盖 */
+.ant-input-affix-wrapper {
+  border-radius: 8px !important;
+  border-color: #e8e8e8 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-input-affix-wrapper:hover {
+  border-color: #1AD299 !important;
+}
+
+.ant-input-affix-wrapper-focused {
+  border-color: #1AD299 !important;
+  box-shadow: 0 0 0 2px rgba(26, 210, 153, 0.1) !important;
+}
+
+.ant-input {
+  border-radius: 8px !important;
+  border-color: #e8e8e8 !important;
+}
+
+.ant-input:hover {
+  border-color: #1AD299 !important;
+}
+
+.ant-input:focus {
+  border-color: #1AD299 !important;
+  box-shadow: 0 0 0 2px rgba(26, 210, 153, 0.1) !important;
+}

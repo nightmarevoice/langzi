@@ -1,0 +1,197 @@
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+/* uniapp 基础样式 */
+.uni-app {
+  font-family: inherit;
+}
+
+/* 页面容器 */
+.uni-page-body {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* 导航栏样式 */
+.uni-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.uni-navbar__content {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.uni-nav-bar-text {
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* 标签栏样式 */
+.uni-tabbar {
+  background-color: #ffffff;
+  border-top: 1px solid #e8e8e8;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.uni-tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #7A7E83;
+  text-decoration: none;
+}
+
+.uni-tabbar__item.active {
+  color: #1AD299;
+}
+
+.uni-tabbar__icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+}
+
+.uni-tabbar__text {
+  font-size: 12px;
+}
+
+/* 按钮样式 */
+.uni-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.uni-btn-primary {
+  background-color: #1AD299;
+  color: white;
+  border-color: #1AD299;
+}
+
+.uni-btn-secondary {
+  background-color: #764ba2;
+  color: white;
+  border-color: #764ba2;
+}
+
+/* 输入框样式 */
+.uni-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.uni-input:focus {
+  border-color: #1AD299;
+}
+
+/* 卡片样式 */
+.uni-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 文本样式 */
+.uni-text {
+  color: #333;
+  line-height: 1.6;
+}
+
+.uni-text-secondary {
+  color: #666;
+}
+
+.uni-text-success {
+  color: #52c41a;
+}
+
+.uni-text-warning {
+  color: #faad14;
+}
+
+.uni-text-error {
+  color: #f5222d;
+}
+
+/* 布局样式 */
+.uni-flex {
+  display: flex;
+}
+
+.uni-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uni-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 间距 */
+.uni-mt-10 { margin-top: 10px; }
+.uni-mb-10 { margin-bottom: 10px; }
+.uni-ml-10 { margin-left: 10px; }
+.uni-mr-10 { margin-right: 10px; }
+
+.uni-pt-10 { padding-top: 10px; }
+.uni-pb-10 { padding-bottom: 10px; }
+.uni-pl-10 { padding-left: 10px; }
+.uni-pr-10 { padding-right: 10px; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .uni-navbar__content {
+    height: 40px;
+    padding: 0 10px;
+  }
+
+  .uni-tabbar__item {
+    padding: 6px;
+  }
+}
